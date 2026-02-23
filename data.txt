@@ -1,0 +1,244 @@
+
+
+-- ============================================================
+-- SEED DATA FOR BIG STAR COLLECTIBLES
+-- PostgreSQL + Flyway
+-- ============================================================
+
+-- ============================================================
+-- USERS
+-- ============================================================
+
+INSERT INTO users (id, email, password_hash, email_verified, active)
+SELECT *
+FROM (VALUES
+  (uuid 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d', 'john.doe@example.com', '$2a$10$rXKhZvqhYxPNQ3xjLs3EXeYKZVPZXLvLQp0LR0pSdTzP8GvMYNqXS', true, true),
+  (uuid 'b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e', 'jane.smith@example.com', '$2a$10$rXKhZvqhYxPNQ3xjLs3EXeYKZVPZXLvLQp0LR0pSdTzP8GvMYNqXS', true, true),
+  (uuid 'c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f', 'mike.johnson@example.com', '$2a$10$rXKhZvqhYxPNQ3xjLs3EXeYKZVPZXLvLQp0LR0pSdTzP8GvMYNqXS', true, true),
+  (uuid 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a', 'sarah.williams@example.com', '$2a$10$rXKhZvqhYxPNQ3xjLs3EXeYKZVPZXLvLQp0LR0pSdTzP8GvMYNqXS', false, true)
+) v(id, email, password_hash, email_verified, active)
+WHERE NOT EXISTS (
+  SELECT 1 FROM users u WHERE u.email = v.email
+);
+
+-- ============================================================
+-- USER PROFILES
+-- ============================================================
+
+INSERT INTO user_profiles (id, full_name, phone)
+SELECT u.id, p.full_name, p.phone
+FROM users u
+JOIN (VALUES
+  ('john.doe@example.com', 'John Doe', '+1-555-0101'),
+  ('jane.smith@example.com', 'Jane Smith', '+1-555-0102'),
+  ('mike.johnson@example.com', 'Mike Johnson', '+1-555-0103'),
+  ('sarah.williams@example.com', 'Sarah Williams', '+1-555-0104')
+) p(email, full_name, phone)
+ON u.email = p.email
+WHERE NOT EXISTS (
+  SELECT 1 FROM user_profiles up WHERE up.id = u.id
+);
+
+-- ============================================================
+-- CATEGORIES
+-- ============================================================
+
+INSERT INTO categories (id, name, slug, description)
+SELECT * FROM (VALUES
+  ('e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b'::uuid, 'Apparel', 'apparel', 'T-shirts, hoodies, and casual wear'),
+  ('f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c'::uuid, 'Accessories', 'accessories', 'Hats, bags, and other accessories'),
+  ('a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d'::uuid, 'Activewear', 'activewear', 'Athletic and performance wear')
+) v(id,name,slug,description)
+WHERE NOT EXISTS (
+  SELECT 1 FROM categories c WHERE c.slug = v.slug
+);
+
+-- ============================================================
+-- PRODUCTS
+-- ============================================================
+
+INSERT INTO products (id, name, slug, description, category_id, base_price, featured, active)
+SELECT
+  gen_random_uuid(),
+  p.name,
+  p.slug,
+  p.description,
+  c.id,
+  p.base_price,
+  p.featured,
+  p.active
+FROM categories c
+JOIN (VALUES
+  (
+    'Bearcats Classic Red Hoodie',
+    'bearcats-classic-red-hoodie',
+    'Stay warm and show your Bearcat pride with this premium cotton-blend hoodie featuring the iconic UC logo. Perfect for game days or everyday wear.',
+    'apparel',
+    54.99,
+    true,
+    true
+  ),
+  (
+    'Cincinnati Bearcats Black Tee',
+    'cincinnati-bearcats-black-tee',
+    'Classic black cotton t-shirt with bold red Bearcats lettering. Comfortable fit for any occasion.',
+    'apparel',
+    29.99,
+    true,
+    true
+  ),
+  (
+    'UC Bearcats Performance Jersey',
+    'uc-bearcats-performance-jersey',
+    'Moisture-wicking performance jersey perfect for workouts or cheering on the Bearcats. Features breathable fabric and athletic fit.',
+    'activewear',
+    64.99,
+    true,
+    true
+  ),
+  (
+    'Bearcats Snapback Cap',
+    'bearcats-snapback-cap',
+    'Adjustable snapback cap with embroidered Bearcats logo. Red and black colorway with structured fit.',
+    'accessories',
+    32.99,
+    false,
+    true
+  ),
+  (
+    'Cincinnati Zip-Up Jacket',
+    'cincinnati-zip-up-jacket',
+    'Premium zip-up jacket in Bearcats red with black trim. Features front pockets and comfortable fleece lining.',
+    'apparel',
+    79.99,
+    false,
+    true
+  ),
+  (
+    'Bearcats Vintage Crewneck',
+    'bearcats-vintage-crewneck',
+    'Retro-style crewneck sweatshirt with vintage Bearcats graphics. Soft cotton blend for all-day comfort.',
+    'apparel',
+    49.99,
+    true,
+    true
+  ),
+  (
+    'UC Bearcats Track Pants',
+    'uc-bearcats-track-pants',
+    'Comfortable track pants with Bearcats branding down the leg. Perfect for the gym or lounging.',
+    'activewear',
+    44.99,
+    false,
+    true
+  ),
+  (
+    'Bearcats Athletic Shorts',
+    'bearcats-athletic-shorts',
+    'Lightweight athletic shorts with mesh panels and Bearcats logo. Ideal for training and game day.',
+    'activewear',
+    34.99,
+    false,
+    true
+  ),
+  (
+    'Cincinnati Bearcats Polo',
+    'cincinnati-bearcats-polo',
+    'Classic polo shirt with embroidered Bearcats logo. Perfect for a polished, spirited look.',
+    'apparel',
+    44.99,
+    false,
+    true
+  ),
+  (
+    'UC Bearcats Backpack',
+    'uc-bearcats-backpack',
+    'Durable backpack with multiple compartments and padded laptop sleeve. Features Bearcats logo and red accents.',
+    'accessories',
+    59.99,
+    false,
+    true
+  ),
+  (
+    'Bearcats Long Sleeve Tee',
+    'bearcats-long-sleeve-tee',
+    'Long sleeve t-shirt in black with bold red Bearcats graphics. Comfortable cotton fabric.',
+    'apparel',
+    36.99,
+    false,
+    true
+  ),
+  (
+    'Cincinnati Quarter-Zip Pullover',
+    'cincinnati-quarter-zip-pullover',
+    'Stylish quarter-zip pullover in Bearcats colors. Great for layering on cooler days.',
+    'apparel',
+    59.99,
+    true,
+    true
+  )
+) p(name, slug, description, category_slug, base_price, featured, active)
+ON c.slug = p.category_slug
+WHERE NOT EXISTS (
+  SELECT 1 FROM products pr WHERE pr.slug = p.slug
+);
+
+-- ============================================================
+-- PRODUCT VARIANTS
+-- ============================================================
+
+INSERT INTO product_variants (id, product_id, size, sku, stock_quantity, price_adjustment, active)
+SELECT
+  gen_random_uuid(),
+  pr.id,
+  v.size,
+  v.sku,
+  v.stock,
+  v.adjustment,
+  true
+FROM products pr
+JOIN (VALUES
+  ('uc-classic-tshirt','S','UC-TS-S',50,0),
+  ('uc-classic-tshirt','M','UC-TS-M',75,0),
+  ('uc-classic-tshirt','L','UC-TS-L',60,0),
+  ('uc-hoodie','M','UC-H-M',45,0),
+  ('uc-hoodie','L','UC-H-L',40,0),
+  ('uc-baseball-cap','One Size','UC-CAP',100,0)
+) v(product_slug,size,sku,stock,adjustment)
+ON pr.slug = v.product_slug
+WHERE NOT EXISTS (
+  SELECT 1 FROM product_variants pv
+  WHERE pv.product_id = pr.id AND pv.size = v.size
+);
+
+-- ============================================================
+-- ADDRESSES
+-- ============================================================
+
+INSERT INTO addresses (id, user_id, address_type, full_name, address_line1, city, state, postal_code, country, phone, is_default)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  a.type,
+  a.name,
+  a.line1,
+  a.city,
+  a.state,
+  a.zip,
+  'US',
+  a.phone,
+  true
+FROM users u
+JOIN (VALUES
+  ('john.doe@example.com','shipping','John Doe','123 Main St','San Francisco','CA','94102','+1-555-0101'),
+  ('jane.smith@example.com','shipping','Jane Smith','456 Oak Ave','Los Angeles','CA','90001','+1-555-0102')
+) a(email,type,name,line1,city,state,zip,phone)
+ON u.email = a.email
+WHERE NOT EXISTS (
+  SELECT 1 FROM addresses ad
+  WHERE ad.user_id = u.id AND ad.address_type = a.type
+);
+
+-- ============================================================
+-- DONE
+-- ============================================================
