@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-// import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,21 +20,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const { login } = useAuth();
+  const { login } = useAuth();
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setError("");
-  //   setIsSubmitting(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
 
-  //   try {
-  //     await login(email, password);
-  //   } catch (err) {
-  //     setError("Invalid email or password. Please try again.");
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
+    try {
+      await login(email, password);
+    } catch (err) {
+      setError("Invalid email or password. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
@@ -50,7 +50,7 @@ export default function LoginPage() {
             Sign in to your account to continue shopping
           </CardDescription>
         </CardHeader>
-        <form /*onSubmit={handleSubmit} */>
+        <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md text-sm">

@@ -1,19 +1,17 @@
-"use client";
-
 import { getFeaturedProducts } from "@/lib/products";
 import { HeroSection } from "@/components/home/hero-section";
 import { FeaturesSection } from "@/components/home/features-section";
 import { FeaturedProductsSection } from "@/components/home/featured-products-section";
 import { CTASection } from "@/components/home/cta-section";
 // import { useAuth } from "@/lib/auth-context";
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
 export default function Home() {
   // const featuredProducts = getFeaturedProducts();
 
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  // const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   // const { isLoading } = useAuth();
   // const [error, setError] = useState<string | null>(null);
 

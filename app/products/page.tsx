@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -14,58 +12,64 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Filter } from "lucide-react";
-// import { getProducts } from "./actions";
+import { ProductModal } from "@/app/products/product-modal";
+import { getAllProducts } from "./actions";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  category: "apparel" | "accessories" | "activewear";
+  images: string[];
+  sizes: string[];
+  featured: boolean;
+  inStock: boolean;
+}
 
 export default function ProductsPage() {
-  interface Product {
-    id: string;
-    name: string;
-    price: number;
-    description: string;
-    category: "apparel" | "accessories" | "activewear";
-    images: string[];
-    sizes: string[];
-    featured: boolean;
-    inStock: boolean;
-  }
-
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
 
-  const filteredAndSortedProducts: Product[] = [];
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // useEffect(() => {
-  //   getProducts().then(setProducts);
-  // }, []);
+  // Fetch products
+  useEffect(() => {
+    getAllProducts().then(setProducts);
+  }, []);
 
-  // const filteredAndSortedProducts = useMemo(() => {
-  //   let filtered = products;
+  // Filter + Sort
+  const filteredAndSortedProducts = useMemo(() => {
+    let filtered = products;
 
-  //   if (selectedCategory !== "all") {
-  //     filtered = products!.filter((p) => p.category === selectedCategory);
-  //   }
+    if (selectedCategory !== "all") {
+      filtered = products.filter((p) => p.category === selectedCategory);
+    }
 
-  //   const sorted = [...filtered!];
-  //   switch (sortBy) {
-  //     case "price-low":
-  //       sorted.sort((a, b) => a.price - b.price);
-  //       break;
-  //     case "price-high":
-  //       sorted.sort((a, b) => b.price - a.price);
-  //       break;
-  //     case "name":
-  //       sorted.sort((a, b) => a.name.localeCompare(b.name));
-  //       break;
-  //     default:
-  //       sorted.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-  //   }
+    const sorted = [...filtered];
 
-  //   return sorted;
-  // }, [products, selectedCategory, sortBy]);
+    switch (sortBy) {
+      case "price-low":
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case "name":
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      default:
+        sorted.sort((a, b) => Number(b.featured) - Number(a.featured));
+    }
+
+    return sorted;
+  }, [products, selectedCategory, sortBy]);
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
       <div className="bg-red-600 text-white py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -78,6 +82,7 @@ export default function ProductsPage() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex items-center gap-2 flex-1">
             <Filter className="h-5 w-5 text-gray-600" />
@@ -110,6 +115,7 @@ export default function ProductsPage() {
           </Select>
         </div>
 
+        {/* Results Count */}
         <div className="mb-6">
           <p className="text-gray-600">
             Showing{" "}
@@ -120,9 +126,17 @@ export default function ProductsPage() {
           </p>
         </div>
 
+        {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAndSortedProducts.map((product) => (
-            <Link key={product.id} href={`/products/${product.id}`}>
+            <div
+              key={product.id}
+              onClick={() => {
+                setSelectedProduct(product);
+                setIsOpen(true);
+              }}
+              className="cursor-pointer"
+            >
               <Card className="h-full hover:shadow-lg transition-shadow duration-300 overflow-hidden group">
                 <div className="relative aspect-square overflow-hidden bg-gray-100">
                   <Image
@@ -154,10 +168,11 @@ export default function ProductsPage() {
                   </Button>
                 </CardFooter>
               </Card>
-            </Link>
+            </div>
           ))}
         </div>
 
+        {/* Empty State */}
         {filteredAndSortedProducts.length === 0 && (
           <div className="text-center py-16">
             <p className="text-gray-500 text-lg">
@@ -166,6 +181,13 @@ export default function ProductsPage() {
           </div>
         )}
       </div>
+
+      {/* Modal */}
+      <ProductModal
+        product={selectedProduct}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
     </div>
   );
 }

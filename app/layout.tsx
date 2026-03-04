@@ -2,8 +2,9 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-// import { AuthProvider } from "@/lib/auth-context";
-// import { AuthGuard } from "@/components/auth-guard";
+import { AuthProvider } from "@/lib/auth-context";
+import { AuthGuard } from "@/components/auth-guard";
+import { CartProvider } from "@/lib/cart-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,16 +36,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className} suppressHydrationWarning={true}>
+      <body className={inter.className} suppressHydrationWarning>
         <div className="container-center">
           <div className="flex flex-col">
-            {/* <AuthProvider>
-              <AuthGuard> */}
-            <div className="flex flex-col">
-              <main className="flex-1">{children}</main>
-            </div>
-            {/* </AuthGuard>
-            </AuthProvider> */}
+            <AuthProvider>
+              <CartProvider>
+                <AuthGuard>
+                  <div className="flex flex-col">
+                    <main className="flex-1">{children}</main>
+                  </div>
+                </AuthGuard>
+              </CartProvider>
+            </AuthProvider>
           </div>
         </div>
       </body>
